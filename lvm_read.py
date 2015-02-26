@@ -87,6 +87,7 @@ def _read_lvm_base(filename):
 
 
 def read(filename, read_from_pickle=True, dump_file=True):
+    """Read from .lvm file and pickle."""
     lvm_data = _lvm_pickle(filename)
     if read_from_pickle and lvm_data:
         return lvm_data
@@ -99,8 +100,6 @@ def read(filename, read_from_pickle=True, dump_file=True):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-
-    print('test')
 
     da = read('data\short.lvm')
     print(da.keys())
