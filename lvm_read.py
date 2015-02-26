@@ -15,6 +15,7 @@ def _lvm_pickle(filename):
         f = open(p_file, 'rb')
         lvm_data = pickle.load(f)
         f.close()
+
     return lvm_data
 
 
@@ -52,32 +53,32 @@ def _read_lvm_base(filename):
             lvm_data[key] = value
         elif line_sp[0] == 'Channels':
             key, value = line_sp[:2]
-            seg = dict()
-            seg[key] = eval(value)
-            lvm_data[segment] = seg
+            segment = dict()
+            segment[key] = eval(value)
+            lvm_data[segment] = segment
             data_comment_reading = True
             data_reading = False
             segment += 1
         elif line_sp[0] == 'X_Value':
-            seg['Channel names'] = line_sp[1:(seg['Channels'] + 1)]
+            segment['Channel names'] = line_sp[1:(segment['Channels'] + 1)]
             seg_data = []
-            seg['data'] = seg_data
+            segment['data'] = seg_data
             if lvm_data['X_Columns'] == 'No':
                 first_column = 1
             data_comment_reading = False
             data_reading = True
         elif data_comment_reading:
-            key, *values = line_sp[:(seg['Channels'] + 1)]
+            key, *values = line_sp[:(segment['Channels'] + 1)]
             if key in ['Delta_X', 'X0', 'Samples']:
-                seg[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
+                segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
             else:
-                seg[key] = values
+                segment[key] = values
         elif line == '\n':
             # segment finished, new segment follows
             continue
         elif data_reading:
             seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.')) for a in
-                             line_sp[first_column:(seg['Channels'] + 1)]])
+                             line_sp[first_column:(segment['Channels'] + 1)]])
             # data_reading = False
     lvm_data['Segments'] = segment
     for s in range(segment):
@@ -90,11 +91,13 @@ def read(filename, read_from_pickle=True, dump_file=True):
     """Read from .lvm file and pickle."""
     lvm_data = _lvm_pickle(filename)
     if read_from_pickle and lvm_data:
+
         return lvm_data
     else:
         lvm_data = _read_lvm_base(filename)
         if dump_file:
             _lvm_dump(lvm_data, filename)
+
         return lvm_data
 
 
