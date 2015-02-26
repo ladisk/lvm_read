@@ -100,6 +100,8 @@ def read(filename, read_from_pickle=True, dump_file=True):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
+    print('test')
+
     da = read('data\short.lvm')
     print(da.keys())
     print('Number of segments:', da['Segments'])
