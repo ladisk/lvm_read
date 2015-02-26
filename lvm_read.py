@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 def _lvm_pickle(filename):
-    """ Reads pickle file
+    """ Reads pickle file (for local use)
 
     :param filename: filename of lvm file
     :return lvm_data: dict with lvm data
