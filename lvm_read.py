@@ -67,7 +67,8 @@ def _read_lvm_base(filename):
             data_comment_reading = False
             data_reading = True
         elif data_comment_reading:
-            key, *values = line_sp[:(seg['Channels'] + 1)]
+            values = line_sp[:(seg['Channels'] + 1)]
+            key, values = values[0], values[1:]
             if key in ['Delta_X', 'X0', 'Samples']:
                 seg[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
             else:
