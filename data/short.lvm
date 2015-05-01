@@ -20,7 +20,7 @@ X_Dimension	Time	Time
 X0	0,0000000000000000E+0	0,0000000000000000E+0	
 Delta_X	3,906250E-5	3,906250E-5	
 ***End_of_Header***			
-X_Value	Vzbujanje (Trigger)	Odziv1 (Trigger)	Comment
+X_Value	Excitation (Trigger)	Response (Trigger)	Comment
 	0,914018	1,204792
 	0,537321	1,208403
 	0,616905	1,213915
