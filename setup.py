@@ -1,5 +1,7 @@
 desc = """\
-LabView Measurement file reader
+LabView Measurement File Reader
+
+See specifications: http://www.ni.com/tutorial/4139/en/
 =============
 
 A simple module for reading the LabView LVM text file.
@@ -13,5 +15,6 @@ setup(name='lvm_read',
       url='https://github.com/openmodal/lvm_read',
       py_modules=['lvm_read'],
       ext_modules=[Extension('lvm_read', ['data/short.lvm'])],
-      long_description=desc
+      long_description=desc,
+      requires=['numpy']
       )
