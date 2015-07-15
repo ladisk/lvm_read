@@ -59,11 +59,11 @@ def _read_lvm_base(filename):
             data_reading = False
             segment += 1
         elif line_sp[0] == 'X_Value':
-            seg['Channel names'] = line_sp[1:(seg['Channels'] + 1)]
             seg_data = []
             seg['data'] = seg_data
             if lvm_data['X_Columns'] == 'No':
                 first_column = 1
+            seg['Channel names'] = line_sp[first_column:(seg['Channels'] + 1)]
             data_comment_reading = False
             data_reading = True
         elif data_comment_reading:
