@@ -59,16 +59,15 @@ def _read_lvm_base(filename):
             data_reading = False
             segment += 1
         elif line_sp[0] == 'X_Value':
-            seg['Channel names'] = line_sp[1:(seg['Channels'] + 1)]
             seg_data = []
             seg['data'] = seg_data
             if lvm_data['X_Columns'] == 'No':
                 first_column = 1
+            seg['Channel names'] = line_sp[first_column:(seg['Channels'] + 1)]
             data_comment_reading = False
             data_reading = True
         elif data_comment_reading:
-            values = line_sp[:(seg['Channels'] + 1)]
-            key, values = values[0], values[1:]
+            key, *values = line_sp[:(seg['Channels'] + 1)]
             if key in ['Delta_X', 'X0', 'Samples']:
                 seg[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
             else:
@@ -88,15 +87,7 @@ def _read_lvm_base(filename):
 
 
 def read(filename, read_from_pickle=True, dump_file=True):
-    """Read from .lvm file and pickle.
-
-    See specifications: http://www.ni.com/tutorial/4139/en/
-
-    :param filename:            file which should be read
-    :param read_from_pickle:    if True, it tries to read from pickle
-    :param dump_file:           dump file to pickle (significantly increases performance)
-    :return:                    dictionary with lvm data
-    """
+    """Read from .lvm file and pickle."""
     lvm_data = _lvm_pickle(filename)
     if read_from_pickle and lvm_data:
         return lvm_data
