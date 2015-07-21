@@ -87,7 +87,15 @@ def _read_lvm_base(filename):
 
 
 def read(filename, read_from_pickle=True, dump_file=True):
-    """Read from .lvm file and pickle."""
+    """Read from .lvm file and pickle.
+
+    See specifications: http://www.ni.com/tutorial/4139/en/
+
+    :param filename:            file which should be read
+    :param read_from_pickle:    if True, it tries to read from pickle
+    :param dump_file:           dump file to pickle (significantly increases performance)
+    :return:                    dictionary with lvm data
+    """
     lvm_data = _lvm_pickle(filename)
     if read_from_pickle and lvm_data:
         return lvm_data
