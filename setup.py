@@ -1,7 +1,8 @@
 desc = """\
 LabView Measurement File Reader
 
-See specifications: http://www.ni.com/tutorial/4139/en/
+For a showcase see: https://github.com/openmodal/lvm_read/blob/master/Showcase%20lvm_read.ipynb
+See also specifications: http://www.ni.com/tutorial/4139/en/
 =============
 
 A simple module for reading the LabView LVM text file.
@@ -10,7 +11,7 @@ A simple module for reading the LabView LVM text file.
 #from distutils.core import setup, Extension
 from setuptools import setup, Extension
 setup(name='lvm_read',
-      version='1.0.4',
+      version='1.0.5',
       author='Janko Slavič',
       author_email='janko.slavic@fs.uni-lj.si',
       url='https://github.com/openmodal/lvm_read',
