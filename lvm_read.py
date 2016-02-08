@@ -87,7 +87,7 @@ def _read_lvm_base(filename):
 
 
 def read(filename, read_from_pickle=True, dump_file=True):
-    """Read from .lvm file and pickle.
+    """Read from .lvm file and by default for faster reading save to pickle.
 
     See specifications: http://www.ni.com/tutorial/4139/en/
 
@@ -95,6 +95,18 @@ def read(filename, read_from_pickle=True, dump_file=True):
     :param read_from_pickle:    if True, it tries to read from pickle
     :param dump_file:           dump file to pickle (significantly increases performance)
     :return:                    dictionary with lvm data
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import urllib
+    >>> filename = 'short.lvm' #download a sample file from github
+    >>> sample_file = urllib.request.urlopen('https://raw.githubusercontent.com/openmodal/lvm_read/master/data/'+filename).read()
+    >>> with open(filename, 'wb') as f: # save the file locally
+            f.write(sample_file)
+    >>> lvm = lvm_read.read('short.lvm') #read the file
+    >>> lvm.keys() #explore the dictionary
+    dict_keys(['', 'Date', 'X_Columns', 'Time_Pref', 'Time', 'Writer_Version',...
     """
     lvm_data = _lvm_pickle(filename)
     if read_from_pickle and lvm_data:
