@@ -89,7 +89,8 @@ def _read_lvm_base(filename):
 def read(filename, read_from_pickle=True, dump_file=True):
     """Read from .lvm file and by default for faster reading save to pickle.
 
-    See specifications: http://www.ni.com/tutorial/4139/en/
+    For a showcase see: https://github.com/openmodal/lvm_read/blob/master/Showcase%20lvm_read.ipynb
+    See also specifications: http://www.ni.com/tutorial/4139/en/
 
     :param filename:            file which should be read
     :param read_from_pickle:    if True, it tries to read from pickle
