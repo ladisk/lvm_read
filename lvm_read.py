@@ -1,3 +1,9 @@
+"""
+This module is part of the www.openmodal.com project and is used for the 
+reading LabView Measurement File
+
+Author: Janko Slavič (janko.slavic@gmail.com)
+"""
 from os import path
 import pickle
 import numpy as np
@@ -88,6 +94,8 @@ def _read_lvm_base(filename):
 
 def read(filename, read_from_pickle=True, dump_file=True):
     """Read from .lvm file and by default for faster reading save to pickle.
+
+    This module is part of the www.openmodal.com project
 
     For a showcase see: https://github.com/openmodal/lvm_read/blob/master/Showcase%20lvm_read.ipynb
     See also specifications: http://www.ni.com/tutorial/4139/en/
