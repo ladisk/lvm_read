@@ -91,6 +91,9 @@ def _read_lvm_base(filename):
                 key, value = line_sp
                 segment[key] = value
 
+    if not lvm_data[segment_nr-1]:
+        del lvm_data[segment_nr-1]
+        segment_nr -= 1
     lvm_data['Segments'] = segment_nr
     for s in range(segment_nr):
         lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
