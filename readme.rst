@@ -4,7 +4,7 @@ lvm_read
 LabView Measurement file reader
 -----------------------------
 
-Test out the *Showcase lvm_read.ipynb* with |binder|. 
+|binder| to test the *Showcase lvm_read.ipynb*. 
 
 .. |binder| image:: http://mybinder.org/badge.svg 
    :target: http://mybinder.org:/repo/openmodal/lvm_read
