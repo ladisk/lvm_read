@@ -45,48 +45,54 @@ def _read_lvm_base(filename):
     """
     lvm_data = dict()
     f = open(filename, 'r')
-    data_comment_reading = False
-    data_reading = True
+    data_channels_comment_reading = False
+    data_reading = False
+    segment = None
     first_column = 0
-    segment = 0
+    segment_nr = 0
     for line in f:
         line_sp = line.replace('\n', '').split('\t')
-        if line_sp[0] in ['***End_of_Header***']:
+        if line_sp[0] in ['***End_of_Header***', 'LabVIEW Measurement']:
             continue
-        elif not data_comment_reading and len(line_sp) is 2:
-            key, value = line_sp
-            lvm_data[key] = value
-        elif line_sp[0] == 'Channels':
-            key, value = line_sp[:2]
-            seg = dict()
-            seg[key] = eval(value)
-            lvm_data[segment] = seg
-            data_comment_reading = True
-            data_reading = False
-            segment += 1
-        elif line_sp[0] == 'X_Value':
-            seg_data = []
-            seg['data'] = seg_data
-            if lvm_data['X_Columns'] == 'No':
-                first_column = 1
-            seg['Channel names'] = line_sp[first_column:(seg['Channels'] + 1)]
-            data_comment_reading = False
-            data_reading = True
-        elif data_comment_reading:
-            key, *values = line_sp[:(seg['Channels'] + 1)]
-            if key in ['Delta_X', 'X0', 'Samples']:
-                seg[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
-            else:
-                seg[key] = values
-        elif line == '\n':
+        elif line in ['\n', '\t\n']:
             # segment finished, new segment follows
+            segment = dict()
+            lvm_data[segment_nr] = segment
+            data_reading = False
+            segment_nr += 1
             continue
-        elif data_reading:
-            seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.')) for a in
-                             line_sp[first_column:(seg['Channels'] + 1)]])
-            # data_reading = False
-    lvm_data['Segments'] = segment
-    for s in range(segment):
+        elif data_reading:#this was moved up, to speed up the reading
+            seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.') if a else 'NaN') for a in
+                             line_sp[first_column:(segment['Channels'] + 1)]])
+        elif segment==None:
+            if len(line_sp) is 2:
+                key, value = line_sp
+                lvm_data[key] = value
+        elif segment!=None:
+            if line_sp[0] == 'Channels':
+                key, value = line_sp[:2]
+                segment[key] = eval(value)
+                data_channels_comment_reading = True
+            elif line_sp[0] == 'X_Value':
+                seg_data = []
+                segment['data'] = seg_data
+                if lvm_data['X_Columns'] == 'No':
+                    first_column = 1
+                segment['Channel names'] = line_sp[first_column:(segment['Channels'] + 1)]
+                data_channels_comment_reading = False
+                data_reading = True
+            elif data_channels_comment_reading:
+                key, *values = line_sp[:(segment['Channels'] + 1)]
+                if key in ['Delta_X', 'X0', 'Samples']:
+                    segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
+                else:
+                    segment[key] = values
+            elif len(line_sp) is 2:
+                key, value = line_sp
+                segment[key] = value
+
+    lvm_data['Segments'] = segment_nr
+    for s in range(segment_nr):
         lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
     f.close()
     return lvm_data
