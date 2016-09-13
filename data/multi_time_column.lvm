@@ -1,0 +1,27 @@
+LabVIEW Measurement	
+Writer_Version	2
+Reader_Version	2
+Separator	Tab
+Decimal_Separator	.
+Multi_Headings	Yes
+X_Columns	Multi
+Time_Pref	Absolute
+Operator	Ladisk
+Date	2016/08/23
+Time	10:45:47.0352557312499836422
+***End_of_Header***	
+	
+Channels	2			
+Samples	51200		51200	
+Date	2016/08/23		2016/08/23	
+Time	10:45:47.0352557312499836422		10:45:47.0352557312499836422	
+Y_Unit_Label	Volts		g	
+X_Dimension	Time		Time	
+X0	0.0000000000000000E+0		0.0000000000000000E+0	
+Delta_X	1.953125E-5		1.953125E-5	
+***End_of_Header***				
+X_Value	Voltage	X_Value	Acceleration	Comment
+0.000000	-0.035229	0.000000	0.532608
+1.953125E-5	-0.034882	1.953125E-5	0.502991
+3.906250E-5	-0.034191	3.906250E-5	0.467541
+

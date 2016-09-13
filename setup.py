@@ -11,7 +11,7 @@ A simple module for reading the LabView LVM text file.
 #from distutils.core import setup, Extension
 from setuptools import setup, Extension
 setup(name='lvm_read',
-      version='1.1.0',
+      version='1.1.2',
       author='Janko Slavič',
       author_email='janko.slavic@fs.uni-lj.si',
       url='https://github.com/openmodal/lvm_read',

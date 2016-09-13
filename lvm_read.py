@@ -49,6 +49,7 @@ def _read_lvm_base(filename):
     data_reading = False
     segment = None
     first_column = 0
+    nr_of_columns = 0
     segment_nr = 0
     for line in f:
         line_sp = line.replace('\n', '').split('\t')
@@ -63,7 +64,7 @@ def _read_lvm_base(filename):
             continue
         elif data_reading:#this was moved up, to speed up the reading
             seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.') if a else 'NaN') for a in
-                             line_sp[first_column:(segment['Channels'] + 1)]])
+                             line_sp[first_column:(nr_of_columns + 1)]])
         elif segment==None:
             if len(line_sp) is 2:
                 key, value = line_sp
@@ -71,20 +72,23 @@ def _read_lvm_base(filename):
         elif segment!=None:
             if line_sp[0] == 'Channels':
                 key, value = line_sp[:2]
+                nr_of_columns = len(line_sp)-1
                 segment[key] = eval(value)
+                if nr_of_columns<segment['Channels']:
+                    nr_of_columns = segment['Channels']
                 data_channels_comment_reading = True
             elif line_sp[0] == 'X_Value':
                 seg_data = []
                 segment['data'] = seg_data
                 if lvm_data['X_Columns'] == 'No':
                     first_column = 1
-                segment['Channel names'] = line_sp[first_column:(segment['Channels'] + 1)]
+                segment['Channel names'] = line_sp[first_column:(nr_of_columns + 1)]
                 data_channels_comment_reading = False
                 data_reading = True
             elif data_channels_comment_reading:
-                key, *values = line_sp[:(segment['Channels'] + 1)]
+                key, *values = line_sp[:(nr_of_columns + 1)]
                 if key in ['Delta_X', 'X0', 'Samples']:
-                    segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) for val in values]
+                    segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) if val else np.nan for val in values]
                 else:
                     segment[key] = values
             elif len(line_sp) is 2:
