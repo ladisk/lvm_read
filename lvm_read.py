@@ -21,7 +21,7 @@
 This module is part of the www.openmodal.com project and is used for the 
 reading LabView Measurement File
 
-Author: Janko Slavič (janko.slavic@gmail.com)
+Author: Janko Slavič et al. (janko.slavic@gmail.com)
 """
 from os import path
 import pickle

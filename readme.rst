@@ -1,8 +1,9 @@
 lvm_read
-======
+========
 
 LabView Measurement file reader
------------------------------
+-------------------------------
+This package is part of the www.openmodal.com project.
 
 |binder| to test the *Showcase lvm_read.ipynb*. 
 
