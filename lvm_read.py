@@ -64,6 +64,7 @@ def _read_lvm_base(filename):
     :return lvm_data: lvm dict
     """
     lvm_data = dict()
+    lvm_data['Decimal_Separator'] = '.'
     f = open(filename, 'r')
     data_channels_comment_reading = False
     data_reading = False
@@ -72,6 +73,7 @@ def _read_lvm_base(filename):
     nr_of_columns = 0
     segment_nr = 0
     for line in f:
+        line = line.replace('\r', '')
         line_sp = line.replace('\n', '').split('\t')
         if line_sp[0] in ['***End_of_Header***', 'LabVIEW Measurement']:
             continue
@@ -106,7 +108,7 @@ def _read_lvm_base(filename):
                 data_channels_comment_reading = False
                 data_reading = True
             elif data_channels_comment_reading:
-                key, *values = line_sp[:(nr_of_columns + 1)]
+                key, values = line_sp[0], line_sp[1:(nr_of_columns + 1)]
                 if key in ['Delta_X', 'X0', 'Samples']:
                     segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) if val else np.nan for val in values]
                 else:
