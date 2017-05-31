@@ -28,6 +28,8 @@ from os import path
 import pickle
 import numpy as np
 
+__version__ = '1.15'
+
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
 
