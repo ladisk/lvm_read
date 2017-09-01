@@ -37,9 +37,14 @@ def _lvm_pickle(filename):
     :return lvm_data: dict with lvm data
     """
     p_file = '{}.pkl'.format(filename)
+    pickle_file_exist = path.exists(p_file)
+    original_file_exist = path.exists(filename)
+    if pickle_file_exist and original_file_exist:
+        read_pickle = path.getctime(p_file) > path.getctime(filename)
+    if not original_file_exist:
+        read_pickle = True
     lvm_data = False
-    # if pickle file exists and pickle is up-2-date just load it.
-    if path.exists(p_file) and path.getctime(p_file) > path.getctime(filename):
+    if pickle_file_exist and read_pickle:
         f = open(p_file, 'rb')
         lvm_data = pickle.load(f)
         f.close()

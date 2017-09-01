@@ -10,6 +10,9 @@ sys.path.insert(0, myPath + '/../')
 from lvm_read import read
 
 def test_short_lvm():
+    data = read('./data/pickle_only.lvm')
+    np.testing.assert_equal(data[0]['data'][0,0],0.914018)
+
     data = read('./data/short.lvm', read_from_pickle=False)
     np.testing.assert_equal(data[0]['data'][0,0],0.914018)
 
