@@ -1,0 +1,17 @@
+Metadata-Version: 1.0
+Name: lvm-read
+Version: 1.17
+Summary: UNKNOWN
+Home-page: https://github.com/openmodal/lvm_read
+Author: Janko Slavič et al.
+Author-email: janko.slavic@fs.uni-lj.si
+License: UNKNOWN
+Description: LabView Measurement File Reader
+        
+        For a showcase see: https://github.com/openmodal/lvm_read/blob/master/Showcase%20lvm_read.ipynb
+        See also specifications: http://www.ni.com/tutorial/4139/en/
+        =============
+        
+        A simple module for reading the LabView LVM text file.
+        
+Platform: UNKNOWN
