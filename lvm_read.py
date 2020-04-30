@@ -106,7 +106,7 @@ def read_lines(lines):
             seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.') if a else 'NaN') for a in
                              line_sp[first_column:(nr_of_columns + 1)]])
         elif segment == None:
-            if len(line_sp) is 2:
+            if len(line_sp) == 2:
                 key, value = line_sp
                 lvm_data[key] = value
         elif segment != None:
@@ -132,7 +132,7 @@ def read_lines(lines):
                                     values]
                 else:
                     segment[key] = values
-            elif len(line_sp) is 2:
+            elif len(line_sp) == 2:
                 key, value = line_sp
                 segment[key] = value
 
