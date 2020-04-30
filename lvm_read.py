@@ -22,13 +22,13 @@
 This module is part of the www.openmodal.com project and is used for the 
 reading LabView Measurement File
 
-Author: Janko Slavič et al. (janko.slavic@gmail.com)
+Author: Janko Slavič et al. (janko.slavic@fs.uni-lj.si)
 """
 from os import path
 import pickle
 import numpy as np
 
-__version__ = '1.17'
+__version__ = '1.18'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
