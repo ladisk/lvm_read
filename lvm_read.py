@@ -28,7 +28,7 @@ from os import path
 import pickle
 import numpy as np
 
-__version__ = '1.18'
+__version__ = '1.19'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
@@ -70,9 +70,8 @@ def _read_lvm_base(filename):
     :param filename: filename of the lvm file
     :return lvm_data: lvm dict
     """
-    f = open(filename, 'r')
-    lvm_data = read_lines(f)
-    f.close()
+    with open(filename, 'r') as f:
+        lvm_data = read_lines(f)
     return lvm_data
 
 
@@ -90,6 +89,11 @@ def read_lines(lines):
     first_column = 0
     nr_of_columns = 0
     segment_nr = 0
+    def to_float(a):
+        try:
+            return float(a.replace(lvm_data['Decimal_Separator'], '.'))
+        except:
+            return np.nan
     for line in lines:
         line = line.replace('\r', '')
         line_sp = line.replace('\n', '').split('\t')
@@ -103,7 +107,7 @@ def read_lines(lines):
             segment_nr += 1
             continue
         elif data_reading:  # this was moved up, to speed up the reading
-            seg_data.append([float(a.replace(lvm_data['Decimal_Separator'], '.') if a else 'NaN') for a in
+            seg_data.append([to_float(a) for a in
                              line_sp[first_column:(nr_of_columns + 1)]])
         elif segment == None:
             if len(line_sp) == 2:
@@ -204,7 +208,8 @@ def read(filename, read_from_pickle=True, dump_file=True):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    da = read('data\short.lvm')
+    da = read('data\with_comments.lvm',read_from_pickle=False)
+    #da = read('data\with_empty_fields.lvm',read_from_pickle=False)
     print(da.keys())
     print('Number of segments:', da['Segments'])
 
