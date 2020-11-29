@@ -208,7 +208,7 @@ def read(filename, read_from_pickle=True, dump_file=True):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    da = read('data\with_comments.lvm',read_from_pickle=False)
+    da = read('data/with_comments.lvm',read_from_pickle=False)
     #da = read('data\with_empty_fields.lvm',read_from_pickle=False)
     print(da.keys())
     print('Number of segments:', da['Segments'])
