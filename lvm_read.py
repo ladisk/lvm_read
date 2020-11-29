@@ -28,7 +28,7 @@ from os import path
 import pickle
 import numpy as np
 
-__version__ = '1.19'
+__version__ = '1.20'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
