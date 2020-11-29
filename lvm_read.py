@@ -70,7 +70,7 @@ def _read_lvm_base(filename):
     :param filename: filename of the lvm file
     :return lvm_data: lvm dict
     """
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding="utf8", errors='ignore') as f:
         lvm_data = read_lines(f)
     return lvm_data
 

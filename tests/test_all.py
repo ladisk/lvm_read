@@ -52,5 +52,5 @@ if __name__ == '__mains__':
     np.testing.run_module_suite()
 
 if __name__ == '__main__':
-    #test_several_comments()
-    timing_on_long_short_lvm()
+    test_several_comments()
+    #timing_on_long_short_lvm()
