@@ -40,6 +40,15 @@ def test_several_comments():
     data = read('./data/with_comments.lvm', read_from_pickle=False, dump_file=False)
     np.testing.assert_equal(data[0]['data'][0,1],1.833787)
 
+def test_segment_splitting():
+    data = read('./data/long_single_header_multi_ch.lvm', read_from_pickle=False, dump_file=False, split_segments=True)
+    np.testing.assert_equal(data['Segments'],len(data.keys())-11)
+
+    for i in range(data['Segments']):
+        test_shape = data[i]['data'].shape[0]
+        for j in range(data[i]['Channels']):
+            np.testing.assert_equal(data[i]['Samples'][j],test_shape)
+
 def timing_on_long_short_lvm():
     N = 5
     tic = time.time()
@@ -53,4 +62,5 @@ if __name__ == '__mains__':
 
 if __name__ == '__main__':
     test_several_comments()
-    #timing_on_long_short_lvm()
+    # test_segment_splitting()
+    # timing_on_long_short_lvm()

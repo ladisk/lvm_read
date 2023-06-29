@@ -25,10 +25,11 @@ reading LabView Measurement File
 Author: Janko Slavič et al. (janko.slavic@fs.uni-lj.si)
 """
 from os import path
+from datetime import datetime, timedelta
 import pickle
 import numpy as np
 
-__version__ = '1.20'
+__version__ = '1.20.1'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
@@ -73,6 +74,78 @@ def _read_lvm_base(filename):
     with open(filename, 'r', encoding="utf8", errors='ignore') as f:
         lvm_data = read_lines(f)
     return lvm_data
+
+def _split_segments(lvm_data, n_samples_total, n_samples_segment):
+    """ Split data into segments. This function splits the data vector in segments 
+    if number of samples in header does not match number of samples in data. This is
+    a workaround when the option in LabView's 'write to measurement file' block 
+    under the 'Segment Headers' is set to 'One header only'. 
+    It is called in function `read()` after reading data from `lvm_file`.
+
+    :param lvm_data: lvm data dictionary
+    :param n_samples_total: number of samples are contained in the data vector
+    :param n_samples_segment: number of samples which is read from the header
+    :return None:
+    """
+    n_segments = n_samples_total // n_samples_segment
+
+    data = lvm_data[0]['data'] # copy data to new array
+
+    del lvm_data[0]['data'] # delete data from lvm_data
+    data_seg = lvm_data[0].copy() # copy data segment to new dictionary
+    del lvm_data[0] # delete data from lvm_data
+
+    lvm_data['Segments'] = n_segments # update number of segments
+    for i in range(n_segments): # generate new segments
+        lvm_data[i] = data_seg.copy()
+        lvm_data[i]['data'] = data[i * n_samples_segment:(i + 1) * n_samples_segment, :]
+
+    lvm_data['Multi_Headings'] = 'Yes' # update Multi_Headings
+    return None
+
+def _update_time(lvm_data):
+    """ Update time in lvm_data dictionary. Starting time from each segment is updated
+    after splitting the data into segments. This function is called in function `read()`
+    after calling function `_split_segments()`.
+
+    :param lvm_data: lvm data dictionary
+    :return None:
+    """
+    delta_t = lvm_data[0]['Delta_X'][0] # get delta_t
+    t_seg = delta_t * lvm_data[0]['Samples'][0] # calculate time of segment
+
+    time = [] # generate time array with truncated decimals
+    for i in range(lvm_data[0]['Channels']):
+        time.append(_truncate_time(lvm_data[0]['Time'][i]))
+    time.append('')
+    
+    time_obj = [] # generate time object array
+    for i in range(lvm_data[0]['Channels']):
+        time_obj.append(datetime.strptime(lvm_data['Date'] \
+                                          + ' ' \
+                                          + time[i], '%Y/%m/%d %H:%M:%S.%f'))
+    
+    # correct time values
+    for i in range(1, lvm_data['Segments']):
+        time_obj = [_ + timedelta(seconds=t_seg*i) for _ in time_obj]
+        lvm_data[i]['Date'] = [_.strftime('%Y/%m/%d') for _ in time_obj]
+        lvm_data[i]['Date'].append('')
+        lvm_data[i]['Time'] = [_.strftime('%H:%M:%S.%f') for _ in time_obj]
+        lvm_data[i]['Time'].append('')
+
+    return None
+
+def _truncate_time(time_str):
+    """ Truncate time string to 6 decimals. It is called in function `_update_time()`, 
+    because LabView writes time with 19 decimals, but Python can only read 6 decimals.
+
+    :param time_str: list which contains time string in format with %H:%M:%S.(,)%f
+    :return: truncated time string
+    """
+    if ',' in time_str:
+        time_str = time_str.replace(',', '.')
+    time_split = time_str.split('.')
+    return time_split[0] + '.' + time_split[1][:6]
 
 
 def read_lines(lines):
@@ -170,7 +243,7 @@ def read_str(str):
     return read_lines(str.splitlines(keepends=True))
 
 
-def read(filename, read_from_pickle=True, dump_file=True):
+def read(filename, read_from_pickle=True, dump_file=True, split_segments=False):
     """Read from .lvm file and by default for faster reading save to pickle.
 
     This module is part of the www.openmodal.com project
@@ -181,6 +254,7 @@ def read(filename, read_from_pickle=True, dump_file=True):
     :param filename:            file which should be read
     :param read_from_pickle:    if True, it tries to read from pickle
     :param dump_file:           dump file to pickle (significantly increases performance)
+    :param split_segments:      if True, splits the segments into separate dictionaries if Number of samples in header does not match number of samples in data segment
     :return:                    dictionary with lvm data
 
     Examples
@@ -200,6 +274,15 @@ def read(filename, read_from_pickle=True, dump_file=True):
         return lvm_data
     else:
         lvm_data = _read_lvm_base(filename)
+
+        # check if number of samples in header matches number of samples in data
+        n_samples_segment = lvm_data[0]['Samples'][0]
+        n_samples_total = lvm_data[0]['data'].shape[0]
+
+        if split_segments and n_samples_segment < n_samples_total:
+            _split_segments(lvm_data, n_samples_total, n_samples_segment)
+            _update_time(lvm_data)
+
         if dump_file:
             _lvm_dump(lvm_data, filename)
         return lvm_data
