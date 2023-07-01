@@ -9,7 +9,7 @@ LabView Measurement file reader
 |binder| to test the *Showcase lvm_read.ipynb*. 
 
 .. |binder| image:: http://mybinder.org/badge.svg 
-   :target: http://mybinder.org:/repo/openmodal/lvm_read
+   :target: http://mybinder.org:/repo/ladisk/lvm_read
 .. |pytest| image:: https://github.com/ladisk/lvm_read/actions/workflows/python-package.yml/badge.svg
     :target: https://github.com/ladisk/lvm_read/actions
 
