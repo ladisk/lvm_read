@@ -65,6 +65,7 @@ def read_lines(lines):
     data_channels_comment_reading = False
     data_reading = False
     segment = None
+    seg_data = []
     first_column = 0
     nr_of_columns = 0
     segment_nr = 0
@@ -140,7 +141,7 @@ def read_str(str):
     >>> import numpy as np
     >>> import urllib
     >>> filename = 'short.lvm' #download a sample file from github
-    >>> sample_file = urllib.request.urlopen('https://raw.githubusercontent.com/openmodal/lvm_read/master/data/'+filename).read()
+    >>> sample_file = urllib.request.urlopen('https://github.com/ladisk/lvm_read/blob/master/data/'+filename).read()
     >>> str = sample_file.decode('utf-8') # convert to string
     >>> lvm = lvm_read.read_str(str) #read the string as lvm file content
     >>> lvm.keys() #explore the dictionary
@@ -152,9 +153,6 @@ def read_str(str):
 def read(filename, read_from_pickle=True, dump_file=True):
     """Read from .lvm file and by default for faster reading save to pickle.
 
-    This module is part of the www.openmodal.com project
-
-    For a showcase see: https://github.com/openmodal/lvm_read/blob/master/Showcase%20lvm_read.ipynb
     See also specifications: http://www.ni.com/tutorial/4139/en/
 
     :param filename:            file which should be read
@@ -167,7 +165,7 @@ def read(filename, read_from_pickle=True, dump_file=True):
     >>> import numpy as np
     >>> import urllib
     >>> filename = 'short.lvm' #download a sample file from github
-    >>> sample_file = urllib.request.urlopen('https://raw.githubusercontent.com/openmodal/lvm_read/master/data/'+filename).read()
+    >>> sample_file = urllib.request.urlopen('https://github.com/ladisk/lvm_read/blob/master/data/'+filename).read()
     >>> with open(filename, 'wb') as f: # save the file locally
             f.write(sample_file)
     >>> lvm = lvm_read.read('short.lvm') #read the file
