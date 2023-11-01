@@ -5,9 +5,10 @@ Author: Janko Slavič et al. (janko.slavic@fs.uni-lj.si)
 """
 from os import path
 import pickle
+import itertools
 import numpy as np
 
-__version__ = '1.21'
+__version__ = '1.22'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
@@ -43,21 +44,25 @@ def _lvm_dump(lvm_data, filename, protocol=-1):
     output.close()
 
 
-def _read_lvm_base(filename):
+def _read_lvm_base(filename, read_comments_as_string=False):
     """ Base lvm reader. Should be called from ``read``, only
 
     :param filename: filename of the lvm file
+    :read_comments_as_string: if True, comments are read as string and returned in dictionary, 
+                              otherwise as nan
     :return lvm_data: lvm dict
     """
     with open(filename, 'r', encoding="utf8", errors='ignore') as f:
-        lvm_data = read_lines(f)
+        lvm_data = read_lines(f, read_comments_as_string=read_comments_as_string)
     return lvm_data
 
 
-def read_lines(lines):
+def read_lines(lines, read_comments_as_string=False):
     """ Read lines of strings.
 
     :param lines: lines of the lvm file
+    :read_comments_as_string: if True, comments are read as string and returned in dictionary, 
+                              otherwise as nan
     :return lvm_data: lvm dict
     """
     lvm_data = dict()
@@ -73,7 +78,10 @@ def read_lines(lines):
         try:
             return float(a.replace(lvm_data['Decimal_Separator'], '.'))
         except:
-            return np.nan
+            if read_comments_as_string:
+                return a
+            else:            
+                return np.nan
     for line in lines:
         line = line.replace('\r', '')
         line_sp = line.replace('\n', '').split('\t')
@@ -108,6 +116,8 @@ def read_lines(lines):
                     first_column = 1
                 segment['Channel names'] = line_sp[first_column:(nr_of_columns + 1)]
                 data_channels_comment_reading = False
+                if segment['Channel names'][-1] == 'Comment':
+                    data_channels_comment_reading = True
                 data_reading = True
             elif data_channels_comment_reading:
                 key, values = line_sp[0], line_sp[1:(nr_of_columns + 1)]
@@ -124,16 +134,30 @@ def read_lines(lines):
         del lvm_data[segment_nr - 1]
         segment_nr -= 1
     lvm_data['Segments'] = segment_nr
+    def to_float2(x, default_value=np.nan):
+        try:
+            return float(x)
+        except ValueError:
+            return default_value
+    vfunc = np.vectorize(to_float2)
     for s in range(segment_nr):
-        lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
+        lvm_data[s]['data'] = list(itertools.zip_longest(*lvm_data[s]['data'], fillvalue=''))
+        if data_channels_comment_reading and read_comments_as_string:
+            lvm_data[s]['comments'] = list(lvm_data[s]['data'][-1])
+            lvm_data[s]['data'] = vfunc(lvm_data[s]['data'][:-1]).T
+        else:
+            lvm_data[s]['data'] = np.asarray(lvm_data[s]['data']).T
+        #lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
     return lvm_data
 
 
-def read_str(str):
+def read_str(str, read_comments_as_string=False):
     """
     Parse the string as the content of lvm file.
 
     :param str:   input string
+    :read_comments_as_string: if True, comments are read as string and returned in dictionary, 
+                  otherwise as nan
     :return:      dictionary with lvm data
 
     Examples
@@ -147,10 +171,10 @@ def read_str(str):
     >>> lvm.keys() #explore the dictionary
     dict_keys(['', 'Date', 'X_Columns', 'Time_Pref', 'Time', 'Writer_Version',...
     """
-    return read_lines(str.splitlines(keepends=True))
+    return read_lines(str.splitlines(keepends=True), read_comments_as_string=read_comments_as_string)
 
 
-def read(filename, read_from_pickle=True, dump_file=True):
+def read(filename, read_from_pickle=True, dump_file=True, read_comments_as_string=False):
     """Read from .lvm file and by default for faster reading save to pickle.
 
     See also specifications: http://www.ni.com/tutorial/4139/en/
@@ -158,6 +182,8 @@ def read(filename, read_from_pickle=True, dump_file=True):
     :param filename:            file which should be read
     :param read_from_pickle:    if True, it tries to read from pickle
     :param dump_file:           dump file to pickle (significantly increases performance)
+    :read_comments_as_string:   if True, comments are read as string and returned in dictionary, 
+                                otherwise as nan
     :return:                    dictionary with lvm data
 
     Examples
@@ -176,20 +202,7 @@ def read(filename, read_from_pickle=True, dump_file=True):
     if read_from_pickle and lvm_data:
         return lvm_data
     else:
-        lvm_data = _read_lvm_base(filename)
+        lvm_data = _read_lvm_base(filename, read_comments_as_string=read_comments_as_string)
         if dump_file:
             _lvm_dump(lvm_data, filename)
         return lvm_data
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    da = read('data/with_comments.lvm',read_from_pickle=False)
-    #da = read('data\with_empty_fields.lvm',read_from_pickle=False)
-    print(da.keys())
-    print('Number of segments:', da['Segments'])
-
-    plt.plot(da[0]['data'])
-    plt.show()
-
