@@ -27,6 +27,31 @@ def test_with_empty_fields_lvm():
     data = read('./data/with_empty_fields.lvm', read_from_pickle=False, dump_file=False)
     np.testing.assert_equal(data[0]['data'][0,7],-0.011923)
 
+def test_with_uneven_comments_as_string():
+    data_from_file = np.array([0.000000,447.224647,2300.783165,2300.783165,2300.783165,2300.783165,
+                               2300.783165,2300.783165,2300.783165,2300.783165,2300.783165,2300.783165,
+                               2300.783165,334.307023,321.410507,56.989538,-0.829803,12.752446,11.301499,
+                               48.239392,55.206290,1256.027059,1256.115820,-242.027870,-242.027870,
+                               6.308925,5.033220,16.512546,1.317933,2.589110])
+    data_from_file2 = np.array([6.000000,447.162303,2300.796408,2300.796408,2300.796408,2300.796408,
+                                2300.796408,2300.796408,2300.796408,2300.796408,2300.796408,2300.796408,
+                                2300.796408,334.219576,321.628593,56.763746,-0.811820,12.749844,
+                                11.299052,48.242021,55.206600,1256.027059,1256.115820,1256.099320,
+                                -242.027870,6.358244,5.130213,16.851365,1.329846,2.650660])
+    data_from_file3 = np.array([7.500000,447.170772,2300.789963,2300.789963,2300.789963,2300.789963,
+                                2300.789963,2300.789963,2300.789963,2300.789963,2300.789963,2300.789963,
+                                2300.789963,334.202566,321.528237,56.741189,-0.840823,12.749844,
+                                11.299052,48.242021,55.206600,1256.027059,1256.115820,1256.099320,
+                                -242.027870, np.nan, np.nan, np.nan, np.nan, np.nan])
+    comments_from_file = ['DummyComment','','','','DummyComment','','','',
+                          'DummyComment','','','','DummyComment','','','']
+    data = read('./data/uneven_comments.lvm', read_from_pickle=False, dump_file=False, read_comments_as_string=True)
+    np.testing.assert_allclose(data[0]['data'][0],data_from_file)
+    np.testing.assert_allclose(data[0]['data'][-4],data_from_file2)
+    np.testing.assert_allclose(data[0]['data'][-1],data_from_file3)
+    for i in range(len(comments_from_file)):
+        np.testing.assert_equal(data[0]['comments'][i],comments_from_file[i])
+
 def test_with_multi_time_column_lvm():
     data = read('./data/multi_time_column.lvm', read_from_pickle=False, dump_file=False)
     np.testing.assert_allclose(data[0]['data'][0],\
@@ -52,5 +77,6 @@ if __name__ == '__mains__':
     np.testing.run_module_suite()
 
 if __name__ == '__main__':
-    test_several_comments()
+    test_with_multi_time_column_lvm()
+    #test_several_comments()
     #timing_on_long_short_lvm()
