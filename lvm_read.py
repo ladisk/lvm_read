@@ -76,7 +76,9 @@ def read_lines(lines, separator='\t'):
 
     :param lines: lines of the lvm file
     :param separator: column separator used in the lvm file
-    :return lvm_data: lvm dict
+    :return lvm_data: lvm dict; a segment whose last channel is ``Comment``
+                      also holds ``comments``, one string per row ('' where
+                      the row carries none)
     :raises ValueError: if no data segment is found (usually a wrong separator)
     """
     lvm_data = dict()
@@ -85,6 +87,8 @@ def read_lines(lines, separator='\t'):
     data_reading = False
     segment = None
     seg_data = []
+    seg_comments = None
+    comment_column = None
     first_column = 0
     nr_of_columns = 0
     segment_nr = 0
@@ -108,6 +112,10 @@ def read_lines(lines, separator='\t'):
         elif data_reading:  # this was moved up, to speed up the reading
             seg_data.append([to_float(a) for a in
                              line_sp[first_column:(nr_of_columns + 1)]])
+            if comment_column is not None:
+                # the comment is text, so it ends up as nan in ``data``; keep it
+                seg_comments.append(line_sp[comment_column]
+                                    if len(line_sp) > comment_column else '')
         elif segment == None:
             if len(line_sp) == 2:
                 key, value = line_sp
@@ -129,6 +137,12 @@ def read_lines(lines, separator='\t'):
                 if lvm_data.get('X_Columns', 'One') == 'No':
                     first_column = 1
                 segment['Channel names'] = line_sp[first_column:(nr_of_columns + 1)]
+                if segment['Channel names'][-1:] == ['Comment']:
+                    comment_column = first_column + len(segment['Channel names']) - 1
+                    seg_comments = []
+                    segment['comments'] = seg_comments
+                else:
+                    comment_column = None
                 data_channels_comment_reading = False
                 data_reading = True
             elif data_channels_comment_reading:
@@ -198,7 +212,9 @@ def read(filename, read_from_pickle=True, dump_file=True):
     :param filename:            file which should be read
     :param read_from_pickle:    if True, it tries to read from pickle
     :param dump_file:           dump file to pickle (significantly increases performance)
-    :return:                    dictionary with lvm data
+    :return:                    dictionary with lvm data; a segment whose last
+                                channel is ``Comment`` also holds ``comments``,
+                                one string per row
 
     Examples
     --------
