@@ -8,7 +8,7 @@ import time
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from lvm_read import read
+from lvm_read import read, read_str
 
 def test_short_lvm():   
     data = read('./data/pickle_only.lvm')
@@ -51,6 +51,22 @@ def timing_on_long_short_lvm():
 def test_comma_separator():
     data = read('./data/comma_separator.lvm', read_from_pickle=False, dump_file=False)
     np.testing.assert_equal(data[0]['data'][0,1],-0.000424)
+
+def test_read_str_separator_from_header():
+    """``read_str`` must detect the separator from the header, as ``read`` does."""
+    for filename in ['./data/comma_separator.lvm', './data/short.lvm']:
+        with open(filename, 'r', encoding='utf8', errors='ignore') as f:
+            from_str = read_str(f.read())
+        from_file = read(filename, read_from_pickle=False, dump_file=False)
+        np.testing.assert_equal(from_str['Segments'], from_file['Segments'])
+        for s in range(from_file['Segments']):
+            np.testing.assert_allclose(from_str[s]['data'], from_file[s]['data'])
+            np.testing.assert_equal(from_str[s]['Channel names'],
+                                    from_file[s]['Channel names'])
+
+    with open('./data/comma_separator.lvm', 'r', encoding='utf8') as f:
+        data = read_str(f.read())
+    np.testing.assert_equal(data[0]['data'][0,1], -0.000424)
 
 if __name__ == '__mains__':
     np.testing.run_module_suite()

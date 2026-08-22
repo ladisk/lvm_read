@@ -145,12 +145,14 @@ def read_lines(lines, separator='\t'):
     return lvm_data
 
 
-def read_str(str):
+def read_str(str, separator=None):
     """
     Parse the string as the content of lvm file.
 
-    :param str:   input string
-    :return:      dictionary with lvm data
+    :param str:       input string
+    :param separator: column separator; if ``None`` (default), it is read from
+                      the ``Separator`` field in the header (``\\t`` if absent)
+    :return:          dictionary with lvm data
 
     Examples
     --------
@@ -163,7 +165,10 @@ def read_str(str):
     >>> lvm.keys() #explore the dictionary
     dict_keys(['', 'Date', 'X_Columns', 'Time_Pref', 'Time', 'Writer_Version',...
     """
-    return read_lines(str.splitlines(keepends=True))
+    lines = str.splitlines(keepends=True)
+    if separator is None:
+        separator = _get_separator(lines)
+    return read_lines(lines, separator=separator)
 
 
 def read(filename, read_from_pickle=True, dump_file=True):
