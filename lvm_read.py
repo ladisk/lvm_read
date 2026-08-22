@@ -3,6 +3,7 @@ This module is used for the reading LabView Measurement File
 
 Author: Janko Slavič et al. (janko.slavic@fs.uni-lj.si)
 """
+from ast import literal_eval
 from os import path
 import pickle
 import numpy as np
@@ -115,7 +116,7 @@ def read_lines(lines, separator='\t'):
             if line_sp[0] == 'Channels':
                 key, value = line_sp[:2]
                 nr_of_columns = len(line_sp) - 1
-                segment[key] = eval(value)
+                segment[key] = literal_eval(value)
                 if nr_of_columns < segment['Channels']:
                     nr_of_columns = segment['Channels']
                 data_channels_comment_reading = True
@@ -133,8 +134,8 @@ def read_lines(lines, separator='\t'):
             elif data_channels_comment_reading:
                 key, values = line_sp[0], line_sp[1:(nr_of_columns + 1)]
                 if key in ['Delta_X', 'X0', 'Samples']:
-                    segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) if val else np.nan for val in
-                                    values]
+                    segment[key] = [literal_eval(val.replace(lvm_data['Decimal_Separator'], '.'))
+                                    if val else np.nan for val in values]
                 else:
                     segment[key] = values
             elif len(line_sp) == 2:

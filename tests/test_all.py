@@ -91,6 +91,22 @@ def test_missing_x_columns():
     np.testing.assert_equal(np.all(np.isnan(data[0]['data'][:, 0])), True)
     np.testing.assert_allclose(data[0]['data'][:, 1:], reference[0]['data'])
 
+def test_header_values_are_not_executed():
+    """Header values must be parsed as literals, never executed as Python code."""
+    with open('./data/short.lvm', 'r', encoding='utf8', errors='ignore') as f:
+        content = f.read()
+
+    reference = read_str(content)
+    np.testing.assert_equal(reference[0]['Channels'], 2)
+    np.testing.assert_equal(reference[0]['Samples'][0], 10)
+    np.testing.assert_allclose(reference[0]['Delta_X'][0], 3.90625e-05)
+
+    for original, payload in [('Channels\t2', "Channels\t__import__('os').getpid()"),
+                              ('Delta_X\t3,906250E-5', "Delta_X\t__import__('os').getpid()")]:
+        assert original in content
+        with pytest.raises(ValueError):
+            read_str(content.replace(original, payload))
+
 if __name__ == '__mains__':
     np.testing.run_module_suite()
 
