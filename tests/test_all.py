@@ -3,6 +3,7 @@ Unit test for lvm_read.py
 """
 
 import numpy as np
+import pytest
 import sys, os
 import time
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -67,6 +68,15 @@ def test_read_str_separator_from_header():
     with open('./data/comma_separator.lvm', 'r', encoding='utf8') as f:
         data = read_str(f.read())
     np.testing.assert_equal(data[0]['data'][0,1], -0.000424)
+
+def test_wrong_separator_raises():
+    """A wrong separator must raise a meaningful error, not `KeyError: -1`."""
+    with open('./data/comma_separator.lvm', 'r', encoding='utf8') as f:
+        content = f.read()
+    with pytest.raises(ValueError, match='separator'):
+        read_str(content, separator='\t')
+    with pytest.raises(ValueError, match='separator'):
+        read_str('not an lvm file at all')
 
 if __name__ == '__mains__':
     np.testing.run_module_suite()

@@ -74,7 +74,9 @@ def read_lines(lines, separator='\t'):
     """ Read lines of strings.
 
     :param lines: lines of the lvm file
+    :param separator: column separator used in the lvm file
     :return lvm_data: lvm dict
+    :raises ValueError: if no data segment is found (usually a wrong separator)
     """
     lvm_data = dict()
     lvm_data['Decimal_Separator'] = '.'
@@ -136,9 +138,14 @@ def read_lines(lines, separator='\t'):
                 key, value = line_sp
                 segment[key] = value
 
-    if not lvm_data[segment_nr - 1]:
+    if segment_nr and not lvm_data[segment_nr - 1]:
+        # the data ended with an empty line, which opened an empty segment
         del lvm_data[segment_nr - 1]
         segment_nr -= 1
+    if segment_nr == 0:
+        raise ValueError('no data segment found; the separator {!r} does not '
+                         'match the file. If the header has no `Separator` '
+                         'field, pass the separator explicitly.'.format(separator))
     lvm_data['Segments'] = segment_nr
     for s in range(segment_nr):
         lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
