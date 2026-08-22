@@ -152,7 +152,15 @@ def read_lines(lines, separator='\t'):
                          'field, pass the separator explicitly.'.format(separator))
     lvm_data['Segments'] = segment_nr
     for s in range(segment_nr):
-        lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'], dtype="object")
+        rows = lvm_data[s]['data']
+        try:
+            lvm_data[s]['data'] = np.asarray(rows, dtype=float)
+        except ValueError:
+            # a row carrying a comment has one field more than the rest, so
+            # the block is ragged; pad the shorter rows to the full width
+            width = max(map(len, rows), default=0)
+            lvm_data[s]['data'] = np.asarray(
+                [row + [np.nan] * (width - len(row)) for row in rows], dtype=float)
     return lvm_data
 
 

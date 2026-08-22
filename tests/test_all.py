@@ -107,6 +107,21 @@ def test_header_values_are_not_executed():
         with pytest.raises(ValueError):
             read_str(content.replace(original, payload))
 
+def test_comments_on_some_rows():
+    """A row carrying a comment has one field more than the rest (PR #18)."""
+    data = read('./data/comments_on_some_rows.lvm', read_from_pickle=False, dump_file=False)
+    values = data[0]['data']
+    reference = read('./data/short.lvm', read_from_pickle=False, dump_file=False)[0]['data']
+
+    # same measurement as short.lvm, with a comment added to two of the ten rows
+    np.testing.assert_equal(values.ndim, 2)
+    np.testing.assert_equal(values.shape, (10, 3))
+    np.testing.assert_allclose(values[:, :2], reference)
+    np.testing.assert_equal(np.all(np.isnan(values[:, 2])), True)
+    # the block must stay numeric, so that it can be used as an array
+    np.testing.assert_equal(values.dtype, np.dtype('float64'))
+    np.testing.assert_allclose(values[0, 0], 0.914018)
+
 if __name__ == '__mains__':
     np.testing.run_module_suite()
 
