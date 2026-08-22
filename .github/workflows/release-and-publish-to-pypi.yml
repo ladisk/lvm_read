@@ -1,28 +1,41 @@
 name: Release and Publish to PyPI
+
 on:
   push:
     tags:
       - 'v*'
+
 jobs:
+  test:
+    uses: ./.github/workflows/python-package.yml
+
   publish:
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write      # for trusted publishing; no PyPI token is needed
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
-      - name: Install dependencies
-        run: pip install setuptools wheel twine build
+      - name: Check that the tag matches __version__
+        run: |
+          version=$(python -c "import lvm_read; print(lvm_read.__version__)")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match __version__ $version in lvm_read.py"
+            exit 1
+          fi
 
       - name: Build package
-        run: python -m build
+        run: |
+          pip install build
+          python -m build
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@v1.14.2

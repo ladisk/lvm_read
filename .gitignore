@@ -104,6 +104,10 @@ data/measurement.uff
 data/tmp.uff
 data/tmp.unv
 data/measurement_58b.uff
+
+# pickle caches written by lvm_read.read(), except the test fixture
+data/*.pkl
+!data/pickle_only.lvm.pkl
 .idea/
 .pypirc
 .vscode

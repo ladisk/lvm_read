@@ -3,6 +3,7 @@ This module is used for the reading LabView Measurement File
 
 Author: Janko Slavič et al. (janko.slavic@fs.uni-lj.si)
 """
+from ast import literal_eval
 from os import path
 import pickle
 import numpy as np
@@ -74,7 +75,9 @@ def read_lines(lines, separator='\t'):
     """ Read lines of strings.
 
     :param lines: lines of the lvm file
+    :param separator: column separator used in the lvm file
     :return lvm_data: lvm dict
+    :raises ValueError: if no data segment is found (usually a wrong separator)
     """
     lvm_data = dict()
     lvm_data['Decimal_Separator'] = '.'
@@ -113,14 +116,17 @@ def read_lines(lines, separator='\t'):
             if line_sp[0] == 'Channels':
                 key, value = line_sp[:2]
                 nr_of_columns = len(line_sp) - 1
-                segment[key] = eval(value)
+                segment[key] = literal_eval(value)
                 if nr_of_columns < segment['Channels']:
                     nr_of_columns = segment['Channels']
                 data_channels_comment_reading = True
             elif line_sp[0] == 'X_Value':
                 seg_data = []
                 segment['data'] = seg_data
-                if lvm_data['X_Columns'] == 'No':
+                # if the header does not state X_Columns, assume the X column
+                # is present: an extra all-nan column is obvious to spot,
+                # while dropping a real channel would pass unnoticed
+                if lvm_data.get('X_Columns', 'One') == 'No':
                     first_column = 1
                 segment['Channel names'] = line_sp[first_column:(nr_of_columns + 1)]
                 data_channels_comment_reading = False
@@ -128,29 +134,36 @@ def read_lines(lines, separator='\t'):
             elif data_channels_comment_reading:
                 key, values = line_sp[0], line_sp[1:(nr_of_columns + 1)]
                 if key in ['Delta_X', 'X0', 'Samples']:
-                    segment[key] = [eval(val.replace(lvm_data['Decimal_Separator'], '.')) if val else np.nan for val in
-                                    values]
+                    segment[key] = [literal_eval(val.replace(lvm_data['Decimal_Separator'], '.'))
+                                    if val else np.nan for val in values]
                 else:
                     segment[key] = values
             elif len(line_sp) == 2:
                 key, value = line_sp
                 segment[key] = value
 
-    if not lvm_data[segment_nr - 1]:
+    if segment_nr and not lvm_data[segment_nr - 1]:
+        # the data ended with an empty line, which opened an empty segment
         del lvm_data[segment_nr - 1]
         segment_nr -= 1
+    if segment_nr == 0:
+        raise ValueError('no data segment found; the separator {!r} does not '
+                         'match the file. If the header has no `Separator` '
+                         'field, pass the separator explicitly.'.format(separator))
     lvm_data['Segments'] = segment_nr
     for s in range(segment_nr):
         lvm_data[s]['data'] = np.asarray(lvm_data[s]['data'])
     return lvm_data
 
 
-def read_str(str):
+def read_str(str, separator=None):
     """
     Parse the string as the content of lvm file.
 
-    :param str:   input string
-    :return:      dictionary with lvm data
+    :param str:       input string
+    :param separator: column separator; if ``None`` (default), it is read from
+                      the ``Separator`` field in the header (``\\t`` if absent)
+    :return:          dictionary with lvm data
 
     Examples
     --------
@@ -163,7 +176,10 @@ def read_str(str):
     >>> lvm.keys() #explore the dictionary
     dict_keys(['', 'Date', 'X_Columns', 'Time_Pref', 'Time', 'Writer_Version',...
     """
-    return read_lines(str.splitlines(keepends=True))
+    lines = str.splitlines(keepends=True)
+    if separator is None:
+        separator = _get_separator(lines)
+    return read_lines(lines, separator=separator)
 
 
 def read(filename, read_from_pickle=True, dump_file=True):

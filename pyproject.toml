@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lvm_read"
-version = "1.23"
+dynamic = ["version"]
 authors = [{name = "Janko Slavič et al.", email = "janko.slavic@fs.uni-lj.si"}]
 maintainers = [{name = "Janko Slavič et al.", email = "janko.slavic@fs.uni-lj.si"}]
 license = "MIT"
@@ -35,6 +35,9 @@ dev = [
 [project.urls]
 homepage = "https://github.com/ladisk/lvm_read"
 source = "https://github.com/ladisk/lvm_read"
+
+[tool.hatch.version]
+path = "lvm_read.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["lvm_read.py"]
