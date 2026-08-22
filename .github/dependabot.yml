@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      # one pull request for all actions, instead of one per action
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "ci"
