@@ -122,6 +122,42 @@ def test_comments_on_some_rows():
     np.testing.assert_equal(values.dtype, np.dtype('float64'))
     np.testing.assert_allclose(values[0, 0], 0.914018)
 
+def test_uneven_comments():
+    """Comments are kept as text; rows without one are shorter (issue #12)."""
+    data = read('./data/uneven_comments.lvm', read_from_pickle=False, dump_file=False)
+    values = data[0]['data']
+
+    # X_Value + 29 channels + the comment column, which never holds a number
+    np.testing.assert_equal(values.dtype, np.dtype('float64'))
+    np.testing.assert_equal(values.shape, (16, 31))
+    np.testing.assert_equal(np.all(np.isnan(values[:, -1])), True)
+    np.testing.assert_allclose(values[0, :3], [0.0, 447.224647, 2300.783165])
+    np.testing.assert_allclose(values[0, 25:30],
+                               [6.308925, 5.033220, 16.512546, 1.317933, 2.589110])
+    # a row that stops after the 24th channel is padded, not dropped
+    np.testing.assert_allclose(values[-1, 24], -242.027870)
+    np.testing.assert_equal(np.all(np.isnan(values[-1, 25:])), True)
+
+    np.testing.assert_equal(data[0]['comments'],
+                            ['DummyComment', '', '', '',
+                             'DummyComment', '', '', '',
+                             'DummyComment', '', '', '',
+                             'DummyComment', '', '', ''])
+
+def test_comments_are_read_as_text():
+    """The text of a comment used to be lost as nan in the data block."""
+    data = read('./data/with_comments.lvm', read_from_pickle=False, dump_file=False)
+    np.testing.assert_equal(data[0]['comments'][0], 'LOST COMMUNICATION')
+    np.testing.assert_equal(data[0]['comments'][1], 'OK')
+
+    data = read('./data/comments_on_some_rows.lvm', read_from_pickle=False, dump_file=False)
+    np.testing.assert_equal(data[0]['comments'][2], 'hammer impact')
+    np.testing.assert_equal(data[0]['comments'][0], '')
+
+    # a segment without a Comment channel gets no comments at all
+    data = read('./data/with_empty_fields.lvm', read_from_pickle=False, dump_file=False)
+    assert 'comments' not in data[0]
+
 if __name__ == '__mains__':
     np.testing.run_module_suite()
 
