@@ -9,7 +9,7 @@ import pickle
 import numpy as np
 import io
 
-__version__ = '1.25'
+__version__ = '1.26'
 
 def _lvm_pickle(filename):
     """ Reads pickle file (for local use)
