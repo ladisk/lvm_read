@@ -26,7 +26,8 @@ jobs:
 
       - name: Check that the tag matches __version__
         run: |
-          version=$(python -c "import lvm_read; print(lvm_read.__version__)")
+          # read __version__ as text: importing lvm_read would need numpy
+          version=$(sed -n "s/^__version__ = '\\(.*\\)'$/\\1/p" lvm_read.py)
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::tag $GITHUB_REF_NAME does not match __version__ $version in lvm_read.py"
             exit 1
