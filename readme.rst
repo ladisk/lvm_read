@@ -90,12 +90,12 @@ it is enabled.
 More
 ----
 
-|binder| to run the *Showcase lvm_read.ipynb* notebook in the browser.
+See the `Showcase lvm_read.ipynb
+<https://github.com/ladisk/lvm_read/blob/master/Showcase%20lvm_read.ipynb>`_
+notebook for a walk through a few sample files, and the `file format
+specification <http://www.ni.com/tutorial/4139/en/>`_ for what the fields
+mean.
 
-See also the `file format specification <http://www.ni.com/tutorial/4139/en/>`_.
-
-.. |binder| image:: http://mybinder.org/badge.svg
-   :target: http://mybinder.org:/repo/ladisk/lvm_read
 .. |pytest| image:: https://github.com/ladisk/lvm_read/actions/workflows/python-package.yml/badge.svg
     :target: https://github.com/ladisk/lvm_read/actions
 .. |pypi| image:: https://img.shields.io/pypi/v/lvm_read.svg
