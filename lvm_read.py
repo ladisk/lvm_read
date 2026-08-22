@@ -122,7 +122,10 @@ def read_lines(lines, separator='\t'):
             elif line_sp[0] == 'X_Value':
                 seg_data = []
                 segment['data'] = seg_data
-                if lvm_data['X_Columns'] == 'No':
+                # if the header does not state X_Columns, assume the X column
+                # is present: an extra all-nan column is obvious to spot,
+                # while dropping a real channel would pass unnoticed
+                if lvm_data.get('X_Columns', 'One') == 'No':
                     first_column = 1
                 segment['Channel names'] = line_sp[first_column:(nr_of_columns + 1)]
                 data_channels_comment_reading = False

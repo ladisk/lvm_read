@@ -78,6 +78,19 @@ def test_wrong_separator_raises():
     with pytest.raises(ValueError, match='separator'):
         read_str('not an lvm file at all')
 
+def test_missing_x_columns():
+    """A header without X_Columns must not raise; the X column is assumed present."""
+    with open('./data/short.lvm', 'r', encoding='utf8', errors='ignore') as f:
+        content = f.read()
+    reference = read_str(content)
+    stripped = '\n'.join(l for l in content.splitlines()
+                         if not l.startswith('X_Columns'))
+    data = read_str(stripped)
+    # the first column is now the (empty) X column, the channels follow
+    np.testing.assert_equal(data[0]['Channel names'][0], 'X_Value')
+    np.testing.assert_equal(np.all(np.isnan(data[0]['data'][:, 0])), True)
+    np.testing.assert_allclose(data[0]['data'][:, 1:], reference[0]['data'])
+
 if __name__ == '__mains__':
     np.testing.run_module_suite()
 
