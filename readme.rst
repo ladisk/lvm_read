@@ -18,7 +18,7 @@ Installation
 
     pip install lvm_read
 
-Requires Python 3.10 or newer and NumPy.
+Requires Python 3.13 or newer and NumPy.
 
 Usage
 -----
